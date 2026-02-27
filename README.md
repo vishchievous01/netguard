@@ -107,4 +107,4 @@ I built NetGuard to better understand:
 ## Author
 
 Vishnu Palakkottu  
-Cybersecurity | SOC | Python
+Cybersecurity Professional | Full Stack Developer
