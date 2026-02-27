@@ -106,5 +106,5 @@ I built NetGuard to better understand:
 
 ## Author
 
-Vishnu Palakkottu  
+Vishnu P V  
 Cybersecurity Professional | Full Stack Developer
