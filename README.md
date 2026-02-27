@@ -1,4 +1,8 @@
 # NetGuard
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![Django](https://img.shields.io/badge/Django-Backend-green)
+![Linux](https://img.shields.io/badge/Linux-iptables-orange)
+![Status](https://img.shields.io/badge/Project-Active-success)
 
 NetGuard is a Django-based firewall management and security monitoring project I built on an Ubuntu Server lab environment.
 
