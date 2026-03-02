@@ -2,11 +2,8 @@ import json
 import subprocess
 import time
 from pathlib import Path
-from db.ban_manager import restore_bans
-restore_bans()
 
 DB_FILE = Path("/home/netguard/netguard/db/bans.json")
-
 BAN_TIME = 1800
 
 
@@ -76,14 +73,15 @@ def restore_bans():
     data = load_db()
 
     for item in data["banned_ips"]:
-        subprocess.run(
+        check = subprocess.run(
             ["sudo", "iptables", "-C", "INPUT", "-s", item["ip"], "-j", "DROP"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL
         )
 
         # If rule doesn't exist, add it
-        subprocess.run(
-            ["sudo", "iptables", "-I", "INPUT", "-s", item["ip"], "-j", "DROP"],
-            check=False
-        )
+        if check.returncode != 0:
+            subprocess.run(
+                ["sudo", "iptables", "-I", "INPUT", "-s", item["ip"], "-j", "DROP"],
+                check=False
+            )
