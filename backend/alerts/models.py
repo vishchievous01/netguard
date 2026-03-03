@@ -5,7 +5,7 @@ import subprocess
 import time
 from django.utils import timezone
 from datetime import datetime
-from core.ban_controller import ban_ip
+from security.ban_controller import ban_ip
 
 class Alert(models.Model):
     SEVERITY_CHOICES = (
@@ -34,11 +34,12 @@ class BannedIP(models.Model):
         return self.ip
 
     def save(self, *args, **kwargs):
-    if not self.banned_at:
-        self.banned_at = int(time.time())
+        if not self.banned_at:
+            self.banned_at = int(time.time())
 
-    super().save(*args, **kwargs)
-    ban_ip(self.ip))
+        super().save(*args, **kwargs)
+
+        ban_ip(self.ip)
 
     def delete(self, *args, **kwargs):
         self._remove_from_json()
@@ -48,5 +49,8 @@ class BannedIP(models.Model):
     def banned_at_local(self):
         if not self.banned_at:
             return None
-        dt = datetime.fromtimestamp(self.banned_at, tz=timezone.get_current_timezone())
+        dt = datetime.fromtimestamp(
+            self.banned_at,
+            tz=timezone.get_current_timezone()
+        )
         return dt.strftime("%Y-%m-%d %H:%M:%S")

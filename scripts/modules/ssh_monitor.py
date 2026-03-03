@@ -1,6 +1,6 @@
 import re
 from collections import defaultdict
-from core.ban_controller import ban_ip
+from security.ban_controller import ban_ip
 
 LOG_FILE = "/var/log/auth.log"
 THRESHOLD = 5

@@ -1,4 +1,4 @@
-from core.ban_controller import restore_bans, unban_expired
+from security.ban_controller import restore_bans, unban_expired
 from scripts.task_manager import run_tasks
 import time
 
