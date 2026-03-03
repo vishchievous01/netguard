@@ -1,9 +1,16 @@
+from core.ban_controller import restore_bans, unban_expired
 from scripts.task_manager import run_tasks
-from db.ban_manager import restore_bans
+import time
 
 def main():
+    print("Netguard Service Started")
+
     restore_bans()
-    run_tasks()
+
+    while True:
+        run_tasks()
+        unban_expired()
+        time.sleep(60)
 
 if __name__ == "__main__":
     main()
