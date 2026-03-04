@@ -1,3 +1,9 @@
+import sys
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.join(BASE_DIR, "backend"))
+
 from security.ban_controller import restore_bans, unban_expired
 from scripts.task_manager import run_tasks
 import time

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NetGuard Attack Timeline</title>
+
+    <style>
+
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            padding: 40px;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #334155;
+        }
+
+        th {
+            background: #1e293b;
+        }
+
+        tr:hover {
+            background: #1e293b;
+        }
+
+        .blocked {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<h1>NetGuard Attack Timeline</h1>
+
+<table>
+
+<thead>
+<tr>
+<th>Time</th>
+<th>IP Address</th>
+<th>Event</th>
+<th>Attempts</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for event in events %}
+
+<tr>
+<td>{{ event.timestamp }}</td>
+<td>{{ event.ip_address }}</td>
+<td>{{ event.event_type }}</td>
+<td>{{ event.attempts }}</td>
+
+<td>
+{% if event.blocked %}
+<span class="blocked">Blocked</span>
+{% else %}
+Allowed
+{% endif %}
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>NetGuard SOC Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    padding:30px;
+}
+
+h1{
+    margin-bottom:30px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:30px;
+}
+
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:8px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+td,th{
+    padding:10px;
+    border-bottom:1px solid #334155;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>NetGuard SOC Dashboard</h1>
+
+<div class="grid">
+
+<div class="card">
+<h2>Attacks Per Hour</h2>
+<canvas id="hourChart"></canvas>
+</div>
+
+<div class="card">
+<h2>Top Attacking IPs</h2>
+
+<table>
+<tr>
+<th>IP</th>
+<th>Attempts</th>
+</tr>
+
+{% for ip in top_ips %}
+
+<tr>
+<td>{{ ip.ip_address }}</td>
+<td>{{ ip.count }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+<div class="card">
+<h2>Recent Attacks</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Time</th>
+<th>IP</th>
+<th>Type</th>
+<th>Attempts</th>
+</tr>
+</thead>
+
+<tbody id="attackTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="card">
+<h2>Attacks by Country</h2>
+
+<table>
+
+<tr>
+<th>Country</th>
+<th>Count</th>
+</tr>
+
+{% for c in attacks_by_country %}
+
+<tr>
+<td>{{ c.country }}</td>
+<td>{{ c.count }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* Chart.js attack graph */
+
+const data = {
+labels: [
+{% for a in attacks_per_hour %}
+"{{ a.hour }}",
+{% endfor %}
+],
+
+datasets:[{
+label:"Attacks",
+data:[
+{% for a in attacks_per_hour %}
+{{ a.count }},
+{% endfor %}
+]
+}]
+};
+
+new Chart(
+document.getElementById("hourChart"),
+{
+type:"line",
+data:data
+}
+);
+
+
+/* LIVE attack updates */
+
+async function loadAttacks(){
+
+    const response = await fetch("/reports/api/attacks/");
+    const data = await response.json();
+
+    const table = document.getElementById("attackTable");
+
+    table.innerHTML = "";
+
+    data.forEach(a => {
+
+        const row = `
+        <tr>
+        <td>${a.time}</td>
+        <td>${a.ip}</td>
+        <td>${a.event}</td>
+        <td>${a.attempts}</td>
+        </tr>
+        `;
+
+        table.innerHTML += row;
+
+    });
+
+}
+
+loadAttacks();
+
+/* refresh every 5 seconds */
+
+setInterval(loadAttacks, 5000);
+
+</script>
+
+
+</body>
+</html>
+
