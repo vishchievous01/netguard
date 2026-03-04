@@ -9,6 +9,7 @@ venv/
 
 # Environment variables
 .env
+.env.local
 
 # Django
 db.sqlite3
@@ -26,3 +27,4 @@ db/bans.json
 
 # OS files
 .DS_Store
+.env
