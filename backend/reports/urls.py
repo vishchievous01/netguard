@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import attack_timeline, dashboard, api_attacks
+from . import views
 
 urlpatterns = [
-    path("timeline/", attack_timeline, name="attack_timeline"),
-    path("dashboard/", dashboard, name="dashboard"),
-    path("api/attacks/", api_attacks, name="api_attacks"),
+    path("timeline/", views.attack_timeline, name="attack_timeline"),
+    path("dashboard/", views.dashboard, name="dashboard"),
+    path("api/attacks/", views.api_attacks, name="api_attacks"),
+    path("api/map/", views.api_attack_map, name="api_attack_map"),
 ]

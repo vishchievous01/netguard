@@ -12,7 +12,7 @@ def attack_timeline(request):
 
 
 def dashboard(request):
-    events = AttackEvent.objects.order_by("-timestamp")
+    events = AttackEvent.objects.order_by("-timestamp")[:50]
 
     top_ips = (
         AttackEvent.objects
@@ -31,6 +31,7 @@ def dashboard(request):
 
     attacks_by_country = (
         AttackEvent.objects
+        .exclude(country=None)
         .values("country")
         .annotate(count=Count("id"))
         .order_by("-count")[:5]
@@ -46,7 +47,7 @@ def dashboard(request):
     return render(request, "reports/dashboard.html", context)
 
 def api_attacks(request):
-    events = AttackEvent.objects.order_by("-timestamp")
+    events = AttackEvent.objects.order_by("-timestamp")[:100]
 
     data = []
 
@@ -57,6 +58,25 @@ def api_attacks(request):
             "event": e.event_type,
             "attempts": e.attempts,
             "blocked": e.blocked,
+            "country": e.country,
         })
-    
+
+    return JsonResponse(data, safe=False)
+
+
+def api_attack_map(request):
+
+    events = AttackEvent.objects.exclude(latitude=None)
+
+    data = []
+
+    for e in events:
+        data.append({
+            "ip": e.ip_address,
+            "lat": e.latitude,
+            "lon": e.longitude,
+            "country": e.country,
+            "city": e.city
+        })
+
     return JsonResponse(data, safe=False)

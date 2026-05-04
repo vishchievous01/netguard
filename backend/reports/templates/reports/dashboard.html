@@ -1,198 +1,190 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
-<title>NetGuard SOC Dashboard</title>
+    <title>NetGuard SOC Dashboard</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
 
-<style>
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+            font-family: Arial;
+            padding: 30px;
+        }
 
-body{
-    background:#0f172a;
-    color:white;
-    font-family:Arial;
-    padding:30px;
-}
+        h1 {
+            margin-bottom: 30px;
+        }
 
-h1{
-    margin-bottom:30px;
-}
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
 
-.grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:30px;
-}
+        .card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 8px;
+        }
 
-.card{
-    background:#1e293b;
-    padding:20px;
-    border-radius:8px;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-td,th{
-    padding:10px;
-    border-bottom:1px solid #334155;
-}
-
-</style>
+        td,
+        th {
+            padding: 10px;
+            border-bottom: 1px solid #334155;
+        }
+    </style>
 
 </head>
 
 <body>
 
-<h1>NetGuard SOC Dashboard</h1>
+    <h1>NetGuard SOC Dashboard</h1>
 
-<div class="grid">
+    <div class="grid">
 
-<div class="card">
-<h2>Attacks Per Hour</h2>
-<canvas id="hourChart"></canvas>
-</div>
+        <div class="card">
+            <h2>Attacks Per Hour</h2>
+            <canvas id="hourChart"></canvas>
+        </div>
 
-<div class="card">
-<h2>Top Attacking IPs</h2>
+        <div class="card">
+            <h2>Top Attacking IPs</h2>
+        </div>
 
-<table>
-<tr>
-<th>IP</th>
-<th>Attempts</th>
-</tr>
+        <div class="card">
+            <h2>Recent Attacks</h2>
+        </div>
 
-{% for ip in top_ips %}
+        <div class="card">
+            <h2>Attacks by Country</h2>
+        </div>
 
-<tr>
-<td>{{ ip.ip_address }}</td>
-<td>{{ ip.count }}</td>
-</tr>
+        <div class="card">
+            <h2>Global Attack Map</h2>
+            <div id="attackMap" style="height:400px;"></div>
+        </div>
 
-{% endfor %}
-
-</table>
-
-</div>
-
-<div class="card">
-<h2>Recent Attacks</h2>
-
-<table>
-
-<thead>
-<tr>
-<th>Time</th>
-<th>IP</th>
-<th>Type</th>
-<th>Attempts</th>
-</tr>
-</thead>
-
-<tbody id="attackTable">
-
-</tbody>
-
-</table>
-
-</div>
-
-<div class="card">
-<h2>Attacks by Country</h2>
-
-<table>
-
-<tr>
-<th>Country</th>
-<th>Count</th>
-</tr>
-
-{% for c in attacks_by_country %}
-
-<tr>
-<td>{{ c.country }}</td>
-<td>{{ c.count }}</td>
-</tr>
-
-{% endfor %}
-
-</table>
-
-</div>
-
-</div>
+    </div>
 
 
-<script>
+    <script>
 
-/* Chart.js attack graph */
+        function attackColor(type) {
 
-const data = {
-labels: [
-{% for a in attacks_per_hour %}
-"{{ a.hour }}",
-{% endfor %}
-],
+            if (type === "SSH_BRUTE_FORCE") return "#ef4444";
+            if (type === "PORT_SCAN") return "#f59e0b";
+            if (type === "LOGIN_FAILURE") return "#3b82f6";
 
-datasets:[{
-label:"Attacks",
-data:[
-{% for a in attacks_per_hour %}
-{{ a.count }},
-{% endfor %}
-]
-}]
-};
+            return "white";
+        }
 
-new Chart(
-document.getElementById("hourChart"),
-{
-type:"line",
-data:data
-}
-);
+        const data = {
+            labels: [
+                {% for a in attacks_per_hour %}
+        "{{ a.hour|date:'H:00' }}",
+            {% endfor %}
+        ],
+        datasets: [{
+            label: "Attacks per Hour",
+            data: [
+                {% for a in attacks_per_hour %}
+                {{ a.count }},
+        {% endfor %}
+        ],
+            borderColor: "#38bdf8",
+                backgroundColor: "rgba(56,189,248,0.2)",
+                    tension: 0.4,
+                        fill: true
+        }]
+    };
+
+        new Chart(
+            document.getElementById("hourChart"),
+            {
+                type: "line",
+                data: data
+            }
+        );
+
+        async function loadAttacks() {
+
+            const response = await fetch("/reports/api/attacks/");
+            const data = await response.json();
+
+            const table = document.getElementById("attackTable");
+
+            table.innerHTML = "";
+
+            data.forEach(a => {
+
+                const row = `
+                <tr>
+                <td>${a.time}</td>
+                <td>${a.ip}</td>
+                <td style="color:${attackColor(a.event)}">${a.event}</td>
+                <td>${a.attempts}</td>
+                </tr>
+                `;
+
+                table.innerHTML += row;
+
+            });
+
+        }
+
+        loadAttacks();
 
 
-/* LIVE attack updates */
+        setInterval(loadAttacks, 5000);
 
-async function loadAttacks(){
+        const map = L.map('attackMap').setView([20, 0], 2);
 
-    const response = await fetch("/reports/api/attacks/");
-    const data = await response.json();
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'OpenStreetMap'
+        }).addTo(map);
 
-    const table = document.getElementById("attackTable");
 
-    table.innerHTML = "";
+        const markers = L.markerClusterGroup();
 
-    data.forEach(a => {
+        async function loadAttackMap() {
 
-        const row = `
-        <tr>
-        <td>${a.time}</td>
-        <td>${a.ip}</td>
-        <td>${a.event}</td>
-        <td>${a.attempts}</td>
-        </tr>
-        `;
+            const response = await fetch("/reports/api/map/");
+            const data = await response.json();
 
-        table.innerHTML += row;
+            data.forEach(a => {
 
-    });
+                const marker = L.marker([a.lat, a.lon])
+                    .bindPopup(`
+            <b>IP:</b> ${a.ip}<br>
+            <b>Location:</b> ${a.city}, ${a.country}
+        `);
 
-}
+                markers.addLayer(marker);
 
-loadAttacks();
+            });
 
-/* refresh every 5 seconds */
+            map.addLayer(markers);
 
-setInterval(loadAttacks, 5000);
+        }
 
-</script>
+        loadAttackMap();
+
+    </script>
 
 
 </body>
-</html>
 
+</html>

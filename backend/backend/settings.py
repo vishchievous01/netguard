@@ -24,11 +24,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    'users',
-    'assets',
-    'alerts',
-    'logs',
-    'reports',
+    'backend.users',
+    'backend.assets',
+    'backend.alerts',
+    'backend.logs',
+    'backend.reports',
 ]
 
 MIDDLEWARE = [
