@@ -331,43 +331,7 @@ The results should correspond with the actions performed through the application
 
 ## Screenshots
 
-Screenshots should demonstrate the actual implementation rather than decorative mock-ups.
-
-Recommended screenshots:
-
-### Dashboard
-
-Show the NetGuard administrative/security interface.
-
-```markdown
-![NetGuard Dashboard](docs/images/dashboard.png)
-```
-
-### Firewall Management
-
-Show the ban/unban interface.
-
-```markdown
-![Firewall Management](docs/images/firewall-management.png)
-```
-
-### Security Events
-
-Show the security-event or asset-management interface.
-
-```markdown
-![Security Events](docs/images/security-events.png)
-```
-
-### Firewall Verification
-
-Show the resulting Linux firewall state.
-
-```markdown
-![iptables Rules](docs/images/iptables-rules.png)
-```
-
-Do not include passwords, tokens, private keys, sensitive host information or other confidential data in screenshots.
+Screenshots demonstrating the NetGuard dashboard, firewall management workflow, security events, and resulting Linux firewall rules will be added as the project documentation is expanded.
 
 ---
 
